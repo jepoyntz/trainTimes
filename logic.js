@@ -78,8 +78,19 @@
      var name = $("#name-input").val().trim();
      var destination = $("#destination-input").val().trim();
      var  firstTrainTime = $("#firstTrainTime-input").val().trim();
+
      var  frequency = $("#frequency-input").val();
-     var currentTime = 0;//$("#currentTime-input").val();
+
+   
+
+     // var currentTime = moment();//$("#currentTime-input").val();
+     // console.log(currentTime)
+     // var firstTimeFormat = moment(firstTrainTime, "hh:mm").subtract(1, "years");
+     // console.log(firstTimeFormat)
+     // var diffTime = moment().diff(moment(firstTimeFormat), "minutes");
+     // console.log(diffTime);
+     // var timeTillNext = diffTime % frequency;
+     // console.log(timeTillNext)
      var  nextArrival= 0;//$("#nextArrival-input").val();
      var minAway = 0; //("#minAwaymi-input")
      var  timeA = 0;//("#timeA-input")
@@ -90,13 +101,10 @@
         destination: destination,
         firstTrainTime: firstTrainTime,
         frequency: frequency,
-        currentTime: currentTime,
-        nextArrival: nextArrival,
-        minAway: minAway, 
-        timeA: timeA,
-        timeB: timeB
-
-
+        currentTime: currentTime.format(),
+        nextArrival: nextTrain.format(),
+        minAway: tMinutesTillTrain, 
+        
       };
 
      dataRef.ref().push(newTrain);
@@ -113,16 +121,47 @@
             var destination = snapshot.val().destination
             var  firstTrainTime = snapshot.val().firstTrainTime
             var  frequency = snapshot.val().frequency
-            //making a cell for new items we want to display
+          
+
+             // First Time (pushed back 1 year to make sure it comes before current time)
+    var firstTimeConverted = moment(firstTrainTime, "hh:mm").subtract(1, "years");
+    console.log(firstTimeConverted);
+
+    // Current Time
+    var currentTime = moment();
+    console.log("CURRENT TIME: " + moment(currentTime).format("hh:mm"));
+
+    // Difference between the times
+    var diffTime = moment().diff(moment(firstTimeConverted), "minutes");
+    console.log("DIFFERENCE IN TIME: " + diffTime);
+
+    // Time apart (remainder)
+    var tRemainder = diffTime % frequency;
+    console.log(tRemainder);
+
+    // Minute Until Train
+    var tMinutesTillTrain = frequency - tRemainder;
+    console.log("MINUTES TILL TRAIN: " + tMinutesTillTrain);
+
+    // Next Train
+    var nextTrain = moment().add(tMinutesTillTrain, "minutes");
+    console.log("ARRIVAL TIME: " + moment(nextTrain).format("hh:mm"));
+
+
+      //making a cell for new items we want to display
             var nameCell = $("<td></td>").text(name);
             var destinationCell = $("<td></td>").text(destination);
             var  firstTrainTimeCell = $("<td></td>").text(firstTrainTime);
             var  frequencyCell = $("<td></td>").text(frequency);
+            var minTillTrainCell = $("<td></td>").text(tMinutesTillTrain);
             //now they have to go somewhere
             var tableRow = $("<tr></tr>").html(nameCell)
             tableRow.append(destinationCell)
-            tableRow.append(firstTrainTimeCell)
             tableRow.append(frequencyCell)
+            tableRow.append(firstTrainTimeCell)
+            tableRow.append(minTillTrainCell)
+
+           
             //take row and put in table
 
             //everytime we add to database we append to tbody element in html
